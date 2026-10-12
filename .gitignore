@@ -1,0 +1,14 @@
+# Archivos temporales de Office / Word
+~$*.docx
+~$*.doc
+*.tmp
+
+# Archivos de sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
