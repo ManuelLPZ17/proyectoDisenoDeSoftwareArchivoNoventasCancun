@@ -1,0 +1,95 @@
+@startuml EquipoXX_Entrega1_DiagramaClases
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam roundcorner 5
+skinparam shadowing false
+skinparam linetype ortho
+
+enum EstadoPropuesta {
+  PENDIENTE
+  REVISADA
+  APROBADA
+  RECHAZADA
+}
+
+enum TipoRecurso {
+  IMAGEN
+  DOCUMENTO
+  TEXTO
+}
+
+class Locacion {
+  - idLocacion : Integer
+  - nombre : String
+  - descripcion : String
+  - latitud : Float
+  - longitud : Float
+  + actualizarDatos(nombre : String, desc : String, lat : Float, lng : Float) : Boolean
+  + vincularArchivo(archivo : ArchivoHistorico) : Void
+  + generarLineaTiempo() : LineaTiempo
+  + solicitarDescargaZIP() : PaqueteDescarga
+}
+
+class ArchivoHistorico {
+  - idArchivo : Integer
+  - titulo : String
+  - tipoArchivo : TipoRecurso
+  - anioHistorico : Integer
+  - rutaAlmacenamiento : String
+  - pesoBytes : Long
+  + obtenerEnlaceDescarga() : String
+  + agregarHipervinculo(idDestino : Integer) : Void
+  + validarFormato() : Boolean
+}
+
+class PropuestaAporte {
+  - idPropuesta : Integer
+  - folioSeguimiento : String
+  - estado : EstadoPropuesta
+  - fechaEnvio : DateTime
+  - rutaArchivoTemporal : String
+  - motivoRechazo : String
+  + marcarEnRevision() : Void
+  + aprobar(curador : Administrador) : ArchivoHistorico
+  + rechazar(motivo : String) : Boolean
+}
+
+class Administrador {
+  - idAdmin : Integer
+  - nombreCompleto : String
+  - correoElectronico : String
+  - passwordHash : String
+  - ultimoAcceso : DateTime
+  + autenticar(credenciales : String) : Boolean
+  + cerrarSesion() : Void
+  + dictaminarPropuesta(propuesta : PropuestaAporte, aprobado : Boolean, motivo : String) : Void
+}
+
+class LineaTiempo {
+  - idLineaTiempo : Integer
+  - fechaGeneracion : DateTime
+  - totalHitos : Integer
+  - rangoAnios : String
+  + ordenarCronologicamente() : List<ArchivoHistorico>
+  + filtrarPorDecada(decada : Integer) : List<ArchivoHistorico>
+}
+
+class PaqueteDescarga {
+  - idPaquete : Integer
+  - tamanioTotalBytes : Long
+  - fechaCompresion : DateTime
+  - rutaArchivoZip : String
+  + comprimirArchivos(archivos : List<ArchivoHistorico>) : String
+  + validarLimiteTamanio(limiteMaxBytes : Long) : Boolean
+}
+
+' Relaciones
+Locacion "1" o-- "0..*" ArchivoHistorico : alberga >
+Locacion "1" *-- "0..1" LineaTiempo : genera >
+Locacion "1" <-- "0..*" PropuestaAporte : referencia <
+Administrador "1" --> "0..*" PropuestaAporte : dictamina >
+Administrador "1" --> "0..*" ArchivoHistorico : publica >
+Locacion ..> PaqueteDescarga : solicita >
+PaqueteDescarga "1" o-- "1..*" ArchivoHistorico : empaqueta >
+
+@enduml
