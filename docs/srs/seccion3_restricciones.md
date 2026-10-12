@@ -1,8 +1,5 @@
 # Sección 3: Restricciones
 
-No aplica.
-La profesora no ha asignado restricciones obligatorias para esta etapa del proyecto.
-
 <!--
 PROPUESTAS DE RESTRICCIÓN PREVIAS (SUJETAS A CONFIRMACIÓN DE LA PROFESORA):
 
