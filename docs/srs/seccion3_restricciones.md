@@ -1,5 +1,7 @@
 # Sección 3: Restricciones
 
+No aplica.
+
 <!--
 PROPUESTAS DE RESTRICCIÓN PREVIAS (SUJETAS A CONFIRMACIÓN DE LA PROFESORA):
 
