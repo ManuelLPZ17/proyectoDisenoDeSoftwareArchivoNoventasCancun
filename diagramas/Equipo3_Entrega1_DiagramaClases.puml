@@ -1,4 +1,4 @@
-@startuml EquipoXX_Entrega1_DiagramaClases
+@startuml Equipo3_Entrega1_DiagramaClases
 skinparam classAttributeIconSize 0
 skinparam monochrome false
 skinparam roundcorner 5
@@ -12,12 +12,6 @@ enum EstadoPropuesta {
   RECHAZADA
 }
 
-enum TipoRecurso {
-  IMAGEN
-  DOCUMENTO
-  TEXTO
-}
-
 class Locacion {
   - idLocacion : Integer
   - nombre : String
@@ -25,32 +19,68 @@ class Locacion {
   - latitud : Float
   - longitud : Float
   + actualizarDatos(nombre : String, desc : String, lat : Float, lng : Float) : Boolean
-  + vincularArchivo(archivo : ArchivoHistorico) : Void
-  + generarLineaTiempo() : LineaTiempo
-  + solicitarDescargaZIP() : PaqueteDescarga
+  + validarCoordenadas() : Boolean
+  + obtenerArchivo() : Archivo
 }
 
-class ArchivoHistorico {
+class Archivo {
   - idArchivo : Integer
+  - totalDocumentos : Integer
+  - pesoAcumuladoBytes : Long
+  - fechaActualizacion : DateTime
+  + agregarDocumento(documento : Documento) : Void
+  + generarLineaTiempo() : List<Documento>
+  + validarLimiteZIP() : Boolean
+  + comprimirArchivoZIP() : String
+}
+
+class Documento {
+  - idDocumento : Integer
   - titulo : String
-  - tipoArchivo : TipoRecurso
+  - cortesiaDe : String
+  - fechaPublicacion : DateTime
+  + vincularImagen(imagen : Imagen) : Void
+  + validarIntegridadDocumento() : Boolean
+  + agregarHipervinculo(idDestino : Integer) : Void
+}
+
+class DocumentoPDF {
+  - rutaArchivoPdf : String
   - anioHistorico : Integer
-  - rutaAlmacenamiento : String
+  - numeroPaginas : Integer
   - pesoBytes : Long
   + obtenerEnlaceDescarga() : String
-  + agregarHipervinculo(idDestino : Integer) : Void
-  + validarFormato() : Boolean
+  + validarFormatoPDF() : Boolean
+}
+
+class Imagen {
+  - idImagen : Integer
+  - anioHistorico : Integer
+  - rutaImagen : String
+  - formatoImagen : String
+  - pesoBytes : Long
+  + obtenerEnlaceDescarga() : String
+  + validarFormatoImagen() : Boolean
+}
+
+class Texto {
+  - idTexto : Integer
+  - contenido : String
+  - tieneValorArtistico : Boolean
+  - extensionPalabras : Integer
+  + validarAutonomia() : Boolean
+  + obtenerExtracto() : String
 }
 
 class PropuestaAporte {
   - idPropuesta : Integer
   - folioSeguimiento : String
   - estado : EstadoPropuesta
-  - fechaEnvio : DateTime
+  - anioSugerido : Integer
   - rutaArchivoTemporal : String
   - motivoRechazo : String
   + marcarEnRevision() : Void
-  + aprobar(curador : Administrador) : ArchivoHistorico
+  + aprobar(curador : Administrador) : Documento
   + rechazar(motivo : String) : Boolean
 }
 
@@ -65,31 +95,16 @@ class Administrador {
   + dictaminarPropuesta(propuesta : PropuestaAporte, aprobado : Boolean, motivo : String) : Void
 }
 
-class LineaTiempo {
-  - idLineaTiempo : Integer
-  - fechaGeneracion : DateTime
-  - totalHitos : Integer
-  - rangoAnios : String
-  + ordenarCronologicamente() : List<ArchivoHistorico>
-  + filtrarPorDecada(decada : Integer) : List<ArchivoHistorico>
-}
+' Relaciones estructurales (Composición, Agregación y Herencia)
+Locacion "1" *-- "1" Archivo : posee >
+Archivo "1" o-- "0..*" Documento : agrupa >
+Documento "1" *-- "1" Texto : incluye >
+Documento "1" o-- "0..*" Imagen : contiene >
+Documento <|-- DocumentoPDF
 
-class PaqueteDescarga {
-  - idPaquete : Integer
-  - tamanioTotalBytes : Long
-  - fechaCompresion : DateTime
-  - rutaArchivoZip : String
-  + comprimirArchivos(archivos : List<ArchivoHistorico>) : String
-  + validarLimiteTamanio(limiteMaxBytes : Long) : Boolean
-}
-
-' Relaciones
-Locacion "1" o-- "0..*" ArchivoHistorico : alberga >
-Locacion "1" *-- "0..1" LineaTiempo : genera >
+' Relaciones de asociación
 Locacion "1" <-- "0..*" PropuestaAporte : referencia <
 Administrador "1" --> "0..*" PropuestaAporte : dictamina >
-Administrador "1" --> "0..*" ArchivoHistorico : publica >
-Locacion ..> PaqueteDescarga : solicita >
-PaqueteDescarga "1" o-- "1..*" ArchivoHistorico : empaqueta >
+Administrador "1" --> "0..*" Documento : publica >
 
 @enduml
