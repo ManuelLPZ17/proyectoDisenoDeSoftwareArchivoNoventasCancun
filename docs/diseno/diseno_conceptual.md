@@ -43,85 +43,53 @@ Esta clasificación distingue las entidades del dominio de sus atributos, las re
 
 ---
 
-## 4.2 Tarjetas CRC de las Clases Principales
+## 4.2 Tarjetas CRC de las clases principales
 
-Se seleccionaron las 3 clases con mayor comportamiento y aplicación de reglas de negocio del sistema:
-1. `PropuestaAporte` (gestiona el ciclo de vida y cambio de estado de las contribuciones).
-2. `Archivo` (gestiona la colección documental de una locación, su línea del tiempo y la compresión `.zip`).
-3. `Documento` (articula imágenes fechadas y textos validando las reglas de integridad y referencias cruzadas).
+Se elaboraron tarjetas CRC para las tres clases que concentran el comportamiento principal del sistema y aplican reglas de negocio:
 
-```
-================================================================================
-CLASE: PropuestaAporte
-================================================================================
-Responsabilidades (qué sabe y qué hace)              | Colaboradores
-----------------------------------------------------+---------------------------
-1. Conoce sus datos de aporte, archivo temporal,    | Locacion
-   folio, fecha de recepción y estado actual        | Administrador
-   (RF-04, RN-03).                                  | Documento
-                                                    |
-2. Se crea en estado Pendiente al enviarse por      |
-   un usuario visitante (RF-04, RN-03).             |
-                                                    |
-3. Cambia a estado Revisada al ser abierta en       |
-   el panel administrativo (RN-03).                 |
-                                                    |
-4. Se dictamina como Aprobada e instruye la         |
-   creación de un Documento público dentro del      |
-   Archivo de la locación (RF-06, RN-03).           |
-                                                    |
-5. Se dictamina como Rechazada registrando el       |
-   motivo obligatorio de descarte (RF-06, RN-03).   |
-================================================================================
-```
+1. **`PropuestaAporte`:** administra los cambios de estado de una contribución ciudadana y las condiciones de su dictamen.
+2. **`Archivo`:** organiza los documentos históricos de una locación y aplica las condiciones para generar la línea del tiempo y la descarga masiva.
+3. **`Documento`:** representa una publicación histórica, verifica la integridad de su contenido y gestiona las referencias entre recursos.
 
-```
-================================================================================
-CLASE: Archivo
-================================================================================
-Responsabilidades (qué sabe y qué hace)              | Colaboradores
-----------------------------------------------------+---------------------------
-1. Conoce la colección de documentos históricos     | Locacion
-   de su locación, el conteo total y el peso        | Documento
-   acumulado en bytes (RF-02, RN-05).               |
-                                                    |
-2. Incorpora nuevos documentos aprobados o          |
-   publicados por el administrador (RF-06, RF-10).  |
-                                                    |
-3. Genera la línea del tiempo cronológica si        |
-   contiene al menos 2 registros con fechas         |
-   históricas distintas (RF-07, RN-04).             |
-                                                    |
-4. Valida que el peso acumulado no supere los       |
-   100 MB antes de empaquetar en lote (RF-08,       |
-   RN-05).                                          |
-                                                    |
-5. Comprime y entrega el paquete .zip con todos     |
-   los documentos de la locación (RF-08, RNF-02).   |
-================================================================================
-```
+Cada responsabilidad se vincula con los requerimientos funcionales o las reglas de negocio correspondientes.
 
-```
-================================================================================
-CLASE: Documento
-================================================================================
-Responsabilidades (qué sabe y qué hace)              | Colaboradores
-----------------------------------------------------+---------------------------
-1. Conoce su título, crédito de cortesía, texto     | Archivo
-   e imágenes fechadas asociadas (RF-02, RN-02,     | Imagen
-   Glosario).                                       | Texto
-                                                    |
-2. Valida que cuente con al menos una Imagen (con   |
-   año histórico) y su Texto descriptivo, o bien    |
-   un Texto con valor artístico propio (RN-02).     |
-                                                    |
-3. Agrega y administra las imágenes que componen    |
-   la publicación histórica (RF-02, RF-10).         |
-                                                    |
-4. Gestiona hipervínculos internos hacia otros      |
-   documentos o locaciones relacionadas (RF-11).    |
-================================================================================
-```
+### Tarjeta CRC 1: `PropuestaAporte`
+
+| **Campo** | **Contenido** |
+| :--- | :--- |
+| **Clase** | **`PropuestaAporte`** |
+| **Responsabilidades (qué sabe y qué hace)** | **1.** Conoce su folio de seguimiento, archivo temporal, año sugerido, locación asociada, estado actual y motivo de rechazo, cuando existe. **(RF-04, RF-06, RN-03)** |
+|  | **2.** Se registra con una locación, descripción y archivo válido de hasta 25 MB; genera un folio único e inicia en estado `Pendiente`. **(RF-04, RN-03)** |
+|  | **3.** Cambia de `Pendiente` a `Revisada` cuando el administrador abre la propuesta para examinarla. **(RN-03)** |
+|  | **4.** Solo desde `Revisada`, puede pasar a `Aprobada` y dar origen a un `Documento` público que se incorpora al `Archivo` de la locación correspondiente. **(RF-06, RN-03)** |
+|  | **5.** Solo desde `Revisada`, puede pasar a `Rechazada` si se proporciona una justificación, que queda registrada; de lo contrario, se impide el cambio. **(RF-06, RN-03)** |
+| **Colaboradores** | `Locacion` (destino del aporte); `Administrador` (revisión y dictamen); `Documento` (publicación originada al aprobarse); `Archivo` (colección que recibe el documento aprobado). |
+
+### Tarjeta CRC 2: `Archivo`
+
+| **Campo** | **Contenido** |
+| :--- | :--- |
+| **Clase** | **`Archivo`** |
+| **Responsabilidades (qué sabe y qué hace)** | **1.** Conoce la locación a la que pertenece, la colección de documentos vinculados, su cantidad y su peso total acumulado. **(RF-02, RN-05)** |
+|  | **2.** Permite recuperar los documentos asociados para consultar el acervo histórico de la locación. **(RF-02)** |
+|  | **3.** Incorpora documentos publicados directamente por el administrador o provenientes de propuestas aprobadas. **(RF-06, RF-10, RN-03)** |
+|  | **4.** Genera la línea del tiempo en orden cronológico cuando existen al menos dos documentos aprobados con fechas históricas distintas; si no se cumple la condición, no la habilita. **(RF-07, RN-04)** |
+|  | **5.** Comprueba que exista al menos un documento publicado y que el tamaño total de los documentos no supere los 100 MB antes de permitir la descarga masiva. **(RF-08, RN-05)** |
+|  | **6.** Prepara un paquete `.zip` con los documentos publicados de la locación cuando se cumplen las condiciones de descarga. **(RF-08, RN-05)** |
+| **Colaboradores** | `Locacion` (lugar al que pertenece); `Documento` (entradas históricas que contiene). |
+
+### Tarjeta CRC 3: `Documento`
+
+| **Campo** | **Contenido** |
+| :--- | :--- |
+| **Clase** | **`Documento`** |
+| **Responsabilidades (qué sabe y qué hace)** | **1.** Conoce sus datos de publicación (identificador, título, crédito y fecha de publicación) y su pertenencia a un `Archivo`. **(RF-02, RF-10)** |
+|  | **2.** Mantiene los recursos que integran una publicación basada en imágenes: una o más `Imagen` y el `Texto` descriptivo correspondiente. **(RF-02, RF-10, RN-02)** |
+|  | **3.** Valida la integridad del contenido publicado: las publicaciones basadas en imágenes requieren al menos una imagen con año histórico y texto descriptivo; los documentos PDF se validan mediante la especialización `DocumentoPDF`, sin exigir imágenes y texto separados. **(RF-10, RN-02)** |
+|  | **4.** Permite asociar las imágenes que integran una publicación histórica, conservando su fecha de procedencia. **(RF-02, RF-10, RN-02)** |
+|  | **5.** Gestiona hipervínculos internos hacia otros documentos o locaciones relacionadas, para permitir la navegación entre recursos. **(RF-11)** |
+| **Colaboradores** | `Archivo` (colección a la que pertenece); `Imagen` y `Texto` (componentes de publicaciones con imágenes); `Documento` y `Locacion` (destinos de hipervínculos internos). |
+
 
 ---
 
