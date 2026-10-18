@@ -1,25 +1,45 @@
 # Paso 2: Diseño Conceptual Preliminar
+## 4.1 Identificación de clases
 
----
+Para identificar las clases del sistema se revisaron los sustantivos utilizados en los requerimientos funcionales, las reglas de negocio y el glosario. Después se evaluó si cada candidato necesita conservar información propia, si es un atributo de otra entidad, si representa una interfaz, si es un sinónimo o si corresponde a un sistema externo.
 
-## 4.1 Identificación de Clases
+### Sustantivos identificados
 
-| Sustantivo Candidato | ¿Guarda info propia y puede haber varios? | ¿Es solo un dato de otra cosa? | ¿Es el sistema mismo o pantalla? | ¿Es sinónimo de otra clase? | ¿Es sistema externo? | Decisión | Justificación |
+- **En los RF:** <u>usuario</u>, <u>mapa</u>, <u>marcador</u>, <u>locación</u>, <u>archivo</u>, <u>documento</u>, <u>administrador</u>, <u>propuesta</u>, <u>imagen</u>, <u>texto</u>, <u>coordenadas</u>, <u>línea del tiempo</u>, <u>ZIP</u> e <u>hipervínculo</u>.
+- **En las RN:** <u>locación</u>, <u>nombre</u>, <u>descripción</u>, <u>coordenadas</u>, <u>documento</u>, <u>imagen</u>, <u>texto</u>, <u>PDF</u>, <u>propuesta de aporte</u>, <u>estado</u>, <u>línea del tiempo</u> y <u>archivo ZIP</u>.
+- **En el glosario:** <u>Locación</u>, <u>Archivo</u>, <u>Documento</u>, <u>Documento PDF</u>, <u>Imagen</u>, <u>Texto</u>, <u>Propuesta de Aporte</u> y <u>Línea del Tiempo</u>.
+
+### Evaluación de candidatos
+
+| Sustantivo candidato | ¿Guarda información propia y puede haber varios? | ¿Es solo un dato de otra cosa? | ¿Es el sistema mismo o una pantalla? | ¿Es sinónimo de otra clase? | ¿Es sistema externo? | Decisión | Justificación |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- | :--- |
-| **Locacion** | **Sí** | No | No | No | No | **Es Clase** | Punto geográfico de Cancún que almacena coordenadas, nombre, reseña y posee su propio `Archivo` (RF-01, RF-02, RN-01). |
-| **Archivo** | **Sí** | No | No | No | No | **Es Clase** | Contenedor documental de una `Locacion` que agrupa sus `Documento`s, genera la línea del tiempo y comprime el paquete `.zip` (RF-02, RF-07, RF-08, RN-04, RN-05). |
-| **Documento** | **Sí** | No | No | No | No | **Es Clase** | Unidad de publicación histórica dentro de un `Archivo` que articula `Imagen`(es) y `Texto` descriptivo o artístico (RF-02, RF-10, RF-11, RN-02, Glosario). |
-| **DocumentoPDF** | **Sí** | No | No | No | No | **Es Clase (Subclase)** | Especialización de `Documento` para expedientes paginados indivisibles (`.pdf`) como planes oficiales o zines (RF-03, RF-10, RN-02, Glosario). |
-| **Imagen** | **Sí** | No | No | No | No | **Es Clase** | Recurso visual estático (`.jpg`, `.png`, `.webp`) con sentido testimonial propio que forma parte de un `Documento` (RF-02, RF-03, RN-02, Glosario). |
-| **Texto** | **Sí** | No | No | No | No | **Es Clase** | Escrito descriptivo (*caption*) dependiente de un `Documento`, o relato con valor artístico propio (RF-02, RN-02, Glosario). |
-| **PropuestaAporte** | **Sí** | No | No | No | No | **Es Clase** | Solicitud ciudadana que cambia de estado (`Pendiente`, `Revisada`, `Aprobada`, `Rechazada`) y origina un `Documento` al aprobarse (RF-04, RF-06, RN-03). |
-| **Administrador** | **Sí** | No | No | No | No | **Es Clase** | Actor con credenciales persistentes encargado de curar propuestas y publicar documentos (RF-05, RF-06, RF-09, RF-10). |
-| *UsuarioVisitante* | No | No | No | No | No | **Se descarta** | El visitante consulta y envía propuestas de forma anónima sin cuenta ni estado persistente (RF-04). |
-| *Google Maps* | No | No | No | No | **Sí** | **Se descarta** | Sistema externo tratado como caja negra vía API (DEP-01). |
-| *Línea del Tiempo / ZIP* | No | No | **Sí** | No | No | **Se descarta (Operación)** | Son representaciones y paquetes generados directamente por la clase `Archivo` a partir de sus documentos (RF-07, RF-08). |
-| *Fecha / Año* | No | **Sí** | No | No | No | **Es Atributo** | Dato cronológico histórico perteneciente a `Imagen` (y `DocumentoPDF`), no a `Texto`. |
-| *Coordenadas* | No | **Sí** | No | No | No | **Es Atributo** | Par latitud/longitud perteneciente a `Locacion`. |
-| *Mapa / Menú* | No | No | **Sí** | No | No | **Se descarta** | Componentes visuales de la interfaz de usuario. |
+| **Locacion** | **Sí** | No | No | No | No | **Clase** | Representa un lugar histórico con identificador, nombre único, descripción y coordenadas. Cada locación tiene un `Archivo` asociado. (RF-01, RF-02, RF-09, RN-01, Glosario). |
+| **Archivo** | **Sí** | No | No | No | No | **Clase** | Es la colección documental de una locación. Agrupa `Documento` y permite consultar el acervo, generar su línea del tiempo y preparar la descarga conjunta cuando cumple las reglas aplicables. (RF-02, RF-07, RF-08, RN-04, RN-05, Glosario). |
+| **Documento** | **Sí** | No | No | No | No | **Clase** | Representa una publicación histórica individual dentro de un `Archivo`. Puede estar formada por imágenes con texto descriptivo; el caso de los expedientes PDF se representa mediante su especialización `DocumentoPDF`. (RF-02, RF-03, RF-10, RN-02, Glosario). |
+| **DocumentoPDF** | **Sí** | No | No | No | No | **Clase (subclase de `Documento`)** | Representa un documento histórico en formato `.pdf`, con información propia del expediente, que se consulta y descarga íntegro sin dividirlo en imágenes y textos independientes. (RF-03, RF-10, RN-02, Glosario). |
+| **Imagen** | **Sí** | No | No | No | No | **Clase** | Conserva información del recurso visual, como su ubicación digital, formato y fecha histórica. Una publicación basada en imágenes debe incluir al menos una imagen acompañada de texto descriptivo. (RF-02, RF-03, RN-02, Glosario). |
+| **Texto** | **Sí** | No | No | No | No | **Clase** | Contiene el escrito descriptivo que contextualiza las imágenes de un `Documento`; puede almacenar contenido propio, pero no constituye una publicación independiente dentro del alcance actual. (RF-02, RF-11, RN-02, Glosario). |
+| **PropuestaAporte** | **Sí** | No | No | No | No | **Clase** | Conserva la información de una contribución ciudadana y su estado. Sigue el ciclo `Pendiente` → `Revisada` → `Aprobada` o `Rechazada`, sujeto a las condiciones de moderación. (RF-04, RF-06, RN-03, Glosario). |
+| **Administrador** | **Sí** | No | No | No | No | **Clase** | Representa al responsable de la gestión del acervo; requiere información propia para autenticarse, registrar locaciones y documentos, y dictaminar propuestas. (RF-05, RF-06, RF-09, RF-10). |
+| *Usuario visitante* | No | No | No | No | No | **Se descarta como clase** | Consulta información y envía propuestas sin autenticación ni cuenta persistente. Se mantiene como actor del sistema, pero no se necesita una entidad de dominio que lo represente. (RF-01, RF-02, RF-04). |
+| *Solicitud de aporte / propuesta ciudadana* | No | No | No | **Sí** | No | **Se unifica con `PropuestaAporte`** | Son denominaciones de la misma solicitud enviada por un visitante; modelarlas por separado duplicaría el concepto. (RF-04, RF-06, RN-03, Glosario). |
+| *Google Maps* | No | No | No | No | **Sí** | **Se descarta como clase** | Es el proveedor cartográfico externo; el sistema consume su servicio, pero no modela internamente sus componentes. (RF-01, Sección 2: Contexto y actores). |
+| *Línea del tiempo* | No | No | **Sí** | No | No | **Se descarta como clase** | Es una representación cronológica generada a partir de los documentos de un `Archivo`, no una entidad histórica independiente. (RF-07, RN-04, Glosario). |
+| *Paquete ZIP* | No | No | No | No | No | **Se descarta como clase** | Es el resultado de la operación de descarga masiva de un `Archivo`, no un objeto del dominio que requiera identidad y ciclo de vida propios. (RF-08, RN-05). |
+| *Marcador del mapa* | No | No | **Sí** | No | No | **Se descarta como clase** | Es una representación gráfica de una `Locacion` en el mapa; sus coordenadas y datos proceden de esa clase. (RF-01, RN-01). |
+| *Mapa / panel de administración / formulario* | No | No | **Sí** | No | No | **Se descartan como clases** | Son elementos de interfaz para visualizar locaciones, gestionar el contenido o recibir propuestas; no constituyen entidades del dominio. (RF-01, RF-04, RF-05). |
+| *Fecha histórica / año* | No | **Sí** | No | No | No | **Atributo** | Describe la procedencia temporal de `Imagen` o `DocumentoPDF`; según SUP-01, puede tener precisión parcial. No requiere identidad como clase independiente. (RN-02, RN-04, Glosario). |
+| *Coordenadas / latitud / longitud* | No | **Sí** | No | No | No | **Atributos** | Son datos geográficos de `Locacion`, necesarios para ubicarla en el mapa y validar su registro. (RF-01, RF-09, RN-01, Glosario). |
+| *Nombre / título / descripción* | No | **Sí** | No | No | No | **Atributos** | Identifican o describen entidades existentes: por ejemplo, nombre y descripción de `Locacion`, o título de `Documento`. (RF-02, RF-09, RF-10, RN-01). |
+| *Estado de propuesta* | No | **Sí** | No | No | No | **Atributo de tipo enumerado** | Indica la etapa de una `PropuestaAporte`. Sus valores se representan mediante `EstadoPropuesta`, sin crear otra clase de dominio independiente. (RF-04, RF-06, RN-03). |
+| *Hipervínculo* | No | **Sí** | No | No | No | **Referencia entre recursos** | Permite navegar desde un documento hacia otro documento o una locación. En el diseño actual se representa como una referencia gestionada por `Documento`, no como clase independiente. (RF-11, SUP-06). |
+
+### Resultado
+
+Se identificaron **8 clases principales**: `Locacion`, `Archivo`, `Documento`, `DocumentoPDF`, `Imagen`, `Texto`, `PropuestaAporte` y `Administrador`. La clase `DocumentoPDF` es una especialización de `Documento`. Por separado se utiliza `EstadoPropuesta` como tipo enumerado para describir los estados permitidos de las propuestas.
+
+Esta clasificación distingue las entidades del dominio de sus atributos, las representaciones de interfaz, los resultados de operaciones y las dependencias externas; también mantiene la terminología utilizada en los requerimientos, las reglas de negocio y el glosario.
+
 
 ---
 
